@@ -1,0 +1,153 @@
+# Default values for faktory.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+global:
+  faktory: {}
+## Optionally specify an array of imagePullSecrets.
+## Secrets must be manually created in the namespace.
+## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+##
+#   imagePullSecrets:
+#     - myRegistryKeySecretName
+
+image:
+  registry: docker.io
+  repository: contribsys/faktory
+  tag: "1.0.1"
+  pullPolicy: IfNotPresent
+  ## Optionally specify an array of imagePullSecrets.
+  ## Secrets must be manually created in the namespace.
+  ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+  ##
+  # pullSecrets:
+  #   - myRegistryKeySecretName
+
+## Use this variable for your faktory license
+##
+# license: ""
+
+## Set a password for faktory using this variable or passwordExistingSecret
+##
+# password:
+
+## Use a key from an existing secret for the faktory password
+##
+# passwordExistingSecret:
+#   name:
+#   key:
+
+# nameOverride: ""
+# fullnameOverride: ""
+
+service:
+  type: ClusterIP
+  port: 7419
+
+ui:
+  enabled: false
+  service:
+    type: ClusterIP
+    port: 7420
+
+replicaCount: 1
+
+persistence:
+  enabled: true
+  # @TODO
+  # existingClaim:
+  # storageClass: "-"
+  accessModes:
+    - ReadWriteOnce
+  size: 8Gi
+  annotations: {}
+
+updateStrategy:
+  type: RollingUpdate
+
+livenessProbe:
+  enabled: true
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 6
+  successThreshold: 1
+
+readinessProbe:
+  enabled: true
+  initialDelaySeconds: 5
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 6
+  successThreshold: 1
+
+## Define custom environment variables to pass to the image here
+## This string will be templated, so helm helpers can be used
+##
+extraEnv: []
+  # - name: DEBUG
+  #   value: faktory*
+
+
+## Enable support for Datadog statsd DaemonSet monitoring via HostIP
+## more info: https://docs.datadoghq.com/agent/kubernetes/daemonset_setup/?tab=k8sfile
+##
+datadog:
+  enabled: false
+
+ingress:
+  enabled: false
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: chart-example.local
+      paths: []
+
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+resources: {}
+  # limits:
+  #   cpu: 500m
+  #   memory: 4Gi
+  # requests:
+  #   cpu: 300m
+  #   memory: 2Gi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+## Faktory configuration
+## Changes to configs are hot-reloaded.
+##
+config: |
+  # general configuration
+
+## Faktory Pro cron configuration
+## Changes to configs are hot-reloaded.
+##
+cron: |
+  # [[cron]]
+  #   schedule = "*/5 * * * *"
+  #   [cron.job]
+  #     type = "FiveJob"
+  #     queue = "critical"
+  #     [cron.job.custom]
+  #       foo = "bar"
+
+## Faktory Pro statsd configuration
+## Changes to configs are hot-reloaded.
+## note: if using datadog.enabled = true, you can omit the location option here
+##
+statsd: |
+  #   [statsd]
+  #     # location =
+  #     # namespace = "faktory."
+  #     # tags = []
+  #     # bufferSize = 15
